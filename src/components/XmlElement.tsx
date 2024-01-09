@@ -48,7 +48,7 @@ const Indentation = ({
   );
 };
 
-const XmlElementComponent = ({ element, children }: PropsWithChildren<XmlElementProps>) => {
+const XmlElementComponent = ({ element }: PropsWithChildren<XmlElementProps>) => {
   if (element.depth == 0) console.log(element);
 
   const breakLine = element.type == XmlElementType.Structural;
@@ -56,7 +56,7 @@ const XmlElementComponent = ({ element, children }: PropsWithChildren<XmlElement
 
   if (element.isText) {
     return (
-      <Indentation depth={depth} isText>
+      <Indentation depth={depth}>
         {element.textValue!}
       </Indentation>
     );

@@ -1,3 +1,4 @@
+import { DomXmlElement } from "./domXmlElement";
 import { XmlElementType } from "./xmlElementType";
 
 export interface XmlElement {
@@ -9,6 +10,7 @@ export interface XmlElement {
     parent: XmlElement | null;
     textValue?: string;
     type?: XmlElementType;
+    xmlNode: DomXmlElement;
 }
 
 interface Attribute {

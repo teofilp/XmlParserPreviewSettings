@@ -1,29 +1,35 @@
 import { Flex } from "antd";
 import { FileLoader } from "./components/FileLoader";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { RcFile } from "antd/es/upload";
 
 import "./App.css";
 import { getXmlAsObjectAsync } from "./utils/xmlParser";
-import { XmlElement } from "./models/xmlElement";
 import XmlElementComponent from "./components/XmlElement";
+import { AppContext } from "./context/AppContext";
+import { useAppDispatch } from "./store";
+import { setTranslateRules, setWithinTextRules } from "./store/parserSettings/parserSettingsSlice";
 
 function App() {
   const [file, setFile] = useState<RcFile | null>(null);
-  const fileLoaded = !!file;
-  const [root, setRoot] = useState<XmlElement | null>(null);
+  const { initializeAppState, appState } = useContext(AppContext);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!fileLoaded) return;
+    if (!file) return;
 
-    getXmlAsObjectAsync(file).then(setRoot).catch(console.error);
-  }, [file, fileLoaded]);
+    getXmlAsObjectAsync(file).then(({ translateRules, withinTextRules, ...rest }) => {
+      dispatch(setTranslateRules(translateRules));
+      dispatch(setWithinTextRules(withinTextRules));
+      initializeAppState(rest)
+    }).catch(console.error);
+  }, [file]);
 
   return (
     <Flex style={{ height: "100%" }}>
       <Flex flex={1}>
-        {!fileLoaded && <FileLoader setFile={setFile} />}
-        {fileLoaded && (
+        {!file && <FileLoader setFile={setFile} />}
+        {file && (
           <div>
             {file.name}
             <button onClick={() => setFile(null)}>Reset</button>
@@ -33,7 +39,7 @@ function App() {
       <Flex flex={2}>
         <div>
           XML Preview
-          {root && <XmlElementComponent element={root} />}
+          {appState.xmlRoot && <XmlElementComponent element={appState.xmlRoot} />}
         </div>
       </Flex>
     </Flex>
