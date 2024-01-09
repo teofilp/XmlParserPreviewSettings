@@ -4,6 +4,7 @@ import { XmlElement } from "../models/xmlElement";
 import { XmlElementType } from "../models/xmlElementType";
 import { DomXmlElement } from "../models/domXmlElement";
 import { XmlParserTranslateRule, XmlParserWithinTextRule } from "../models/rules";
+import { NodeType } from "../models/nodeType";
 
 export const getXmlAsObjectAsync = async (
   file: RcFile
@@ -51,8 +52,8 @@ const mapToXmlElement = (
   depth = 0,
   parent: XmlElement | null = null
 ): XmlElement => {
-  if (isWhitespaceTextNode(node)) return null as unknown as XmlElement;
-    if (depth == 0) console.log(node.firstChild);
+  if (isWhitespaceTextNode(node) || !nodeTypeIsValid(node)) return null as unknown as XmlElement;
+
   // create xmlElement
   var element: XmlElement = {
     name: node.nodeName,
@@ -88,6 +89,10 @@ const mapToXmlElement = (
 
 const isWhitespaceTextNode = (node: DomXmlElement) => {
     return node.nodeType == 3 && /^\s*$/.test(node.nodeValue ?? "");
+}
+
+const nodeTypeIsValid = (node: DomXmlElement) => {
+    return [NodeType.Element, NodeType.Text].includes(node.nodeType);
 }
 
 const buildXPathSelector = (node: DomXmlElement) => {
