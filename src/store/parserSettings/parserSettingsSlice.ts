@@ -1,56 +1,30 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 import {
-  XmlParserTranslateRule,
-  XmlParserWithinTextRule,
+  XmlParserRule,
 } from "../../models/rules";
 
 export interface XmlParserSettingsState {
-  translateRules: XmlParserTranslateRule[];
-  withinTextRules: XmlParserWithinTextRule[];
+  rules: XmlParserRule[];
 }
 
 const getDefaultState = (): XmlParserSettingsState => ({
-  translateRules: [],
-  withinTextRules: [],
+  rules: [],
 });
 
 export const parserSettingsSlice = createSlice({
   name: "parserSettings",
   initialState: getDefaultState(),
   reducers: {
-    setTranslateRules: (
+    setRules: (
       state: XmlParserSettingsState,
-      { payload }: PayloadAction<XmlParserTranslateRule[]>
+      { payload }: PayloadAction<XmlParserRule[]>
     ) => {
-      state.translateRules = payload;
-    },
-    setWithinTextRules: (
-      state: XmlParserSettingsState,
-      { payload }: PayloadAction<XmlParserWithinTextRule[]>
-    ) => {
-      state.withinTextRules = payload;
-    },
-    addTranslateRule: (
-      state: XmlParserSettingsState,
-      { payload }: PayloadAction<XmlParserTranslateRule>
-    ) => {
-      state.translateRules.push(payload);
-    },
-    addWithinTextRule: (
-      state: XmlParserSettingsState,
-      { payload }: PayloadAction<XmlParserWithinTextRule>
-    ) => {
-      state.withinTextRules.push(payload);
+      state.rules = payload;
     },
   },
 });
 
-export const {
-  addTranslateRule,
-  addWithinTextRule,
-  setTranslateRules,
-  setWithinTextRules,
-} = parserSettingsSlice.actions;
+export const { setRules } = parserSettingsSlice.actions;
 
 export default parserSettingsSlice.reducer;

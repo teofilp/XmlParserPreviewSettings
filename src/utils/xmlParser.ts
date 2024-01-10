@@ -3,48 +3,62 @@ import { getFileContentAsTextAsync } from "./file";
 import { XmlElement } from "../models/xmlElement";
 import { XmlElementType } from "../models/xmlElementType";
 import { DomXmlElement } from "../models/domXmlElement";
-import { XmlParserTranslateRule, XmlParserWithinTextRule } from "../models/rules";
+import {
+    XmlParserRule,
+} from "../models/rules";
 import { NodeType } from "../models/nodeType";
+import { XmlDocument } from "../models/xmlDocument";
+import { TranslateRule } from "../models/translateRule";
+import { WithinTextRule } from "../models/withinTextRule";
 
 export const getXmlAsObjectAsync = async (
   file: RcFile
 ): Promise<{
-    xmlRoot: XmlElement;
-    xmlDocument: Document;
-    translateRules: XmlParserTranslateRule[];
-    withinTextRules: XmlParserWithinTextRule[];
+  xmlDocument: XmlDocument;
+  xmlDomDocument: Document;
+  parserRules: XmlParserRule[];
 }> => {
+  const parserRules: XmlParserRule[] = [];
+
+  const addParserRule = (rule: XmlParserRule) => {
+    parserRules.push(rule);
+  };
+
   const xml = await getFileContentAsTextAsync(file);
-  const xmlDocument = new DOMParser().parseFromString(xml, file.type as DOMParserSupportedType);
+  const xmlDomDocument = new DOMParser().parseFromString(
+    xml,
+    file.type as DOMParserSupportedType
+  );
+
+  const xmlDocument = {
+    children: ([...xmlDomDocument.childNodes] as DomXmlElement[])
+      .map((x) => handleResult(x, addParserRule))
+      .filter((x) => !!x),
+  };
+
+  console.log(xmlDocument);
+  console.log(parserRules);
 
   return {
-    ...handleResult(xmlDocument.firstElementChild!),
-    xmlDocument
+    xmlDocument,
+    parserRules,
+    xmlDomDocument,
   };
 };
 
-const handleResult = (node: DomXmlElement) => {
+const handleResult = (
+  node: DomXmlElement,
+  addParserRule: any
+) => {
   const element = mapToXmlElement(node);
-  const withinTextRules: XmlParserWithinTextRule[] = [];
-  const translateRules: XmlParserTranslateRule[] = [];
 
-  const addTranslateRule = (node: XmlElement) => translateRules.push({
-    xpathSelector: buildXPathSelector(node.xmlNode),
-    translate: "inherit"
-  });
+  if (!element) {
+    return element;
+  }
 
-  const addWithinTextRule = (node: XmlElement) => withinTextRules.push({
-    xpathSelector: buildXPathSelector(node.xmlNode),
-    withinText: "yes"
-  })
+  autopopulateElementType(element, addParserRule);
 
-  autopopulateElementType(element, addTranslateRule, addWithinTextRule);
-
-  return {
-    xmlRoot: element,
-    translateRules,
-    withinTextRules
-  };
+  return element;
 };
 
 const mapToXmlElement = (
@@ -52,7 +66,8 @@ const mapToXmlElement = (
   depth = 0,
   parent: XmlElement | null = null
 ): XmlElement => {
-  if (isWhitespaceTextNode(node) || !nodeTypeIsValid(node)) return null as unknown as XmlElement;
+  if (isWhitespaceTextNode(node) || !nodeTypeIsValid(node))
+    return null as unknown as XmlElement;
 
   // create xmlElement
   var element: XmlElement = {
@@ -63,7 +78,7 @@ const mapToXmlElement = (
           value: entry.nodeValue,
         }))
       : [],
-    isText: node.nodeType == 3, // text type
+    isText: node.nodeType == NodeType.Text, // text type
     depth: depth,
     parent: parent,
     textValue: node.textContent ?? "",
@@ -88,24 +103,33 @@ const mapToXmlElement = (
 };
 
 const isWhitespaceTextNode = (node: DomXmlElement) => {
-    return node.nodeType == 3 && /^\s*$/.test(node.nodeValue ?? "");
-}
+  return node.nodeType == 3 && /^\s*$/.test(node.nodeValue ?? "");
+};
 
 const nodeTypeIsValid = (node: DomXmlElement) => {
-    return [NodeType.Element, NodeType.Text].includes(node.nodeType);
-}
+  return [
+    NodeType.Element,
+    NodeType.Text,
+    NodeType.CDataSection,
+    NodeType.Comment,
+    NodeType.ProcessingInstruction,
+  ].includes(node.nodeType);
+};
 
 const buildXPathSelector = (node: DomXmlElement) => {
-    if (node.namespaceURI) {
-        return `//*[local-name() = '${node.localName}' and namespace-uri() = '${node.namespaceURI}']`
-    }
+  if (node.namespaceURI) {
+    return `//*[local-name() = '${node.localName}' and namespace-uri() = '${node.namespaceURI}']`;
+  }
 
-    return `//*[local-name() = '${node.localName}']`
-}
+  return `//*[local-name() = '${node.localName}']`;
+};
 
-const autopopulateElementType = (element: XmlElement, addTranslateRule: (node: XmlElement) => void, addWithinTextRule: (node: XmlElement) => void) => {
+const autopopulateElementType = (
+  element: XmlElement,
+  addParserRule: (rule: XmlParserRule) => void,
+) => {
   const queue = [element];
-  const processOrder: XmlElement[] = [];
+  let processOrder: XmlElement[] = [];
   const elementsWithInnerText: XmlElement[] = [];
 
   while (queue.length > 0) {
@@ -121,29 +145,48 @@ const autopopulateElementType = (element: XmlElement, addTranslateRule: (node: X
 
     current.children?.forEach((x) => queue.push(x));
   }
-  console.log("processOrder", processOrder, processOrder.length)
+
+  // we are only interested in 
+  processOrder = processOrder.filter((x) =>
+    [NodeType.Element].includes(x.xmlNode.nodeType)
+  );
+
   processOrder.forEach((node) => {
-    node.type = XmlElementType.Structural;
-    const parent = node.parent;
-    if (!parent) return;
-
-    var isSiblingOfText = elementsWithInnerText.find((x) => x == parent);
-    if (isSiblingOfText) {
-      node.type = XmlElementType.Inline;
+    const elementType = getElementType(node, elementsWithInnerText, processOrder);
+    const xmlParserRule: XmlParserRule = {
+        isInline: elementType == XmlElementType.Inline,
+        xpathSelector: buildXPathSelector(node.xmlNode)
     }
 
-    const isChildOfInlineParent = processOrder.find(
-      (x) => x.type == XmlElementType.Inline && x.name == parent.name
-    );
-
-    if (isChildOfInlineParent) {
-      node.type = XmlElementType.Inline;
+    if (xmlParserRule.isInline) {
+      xmlParserRule.withinText = WithinTextRule.Yes;
     }
 
-    if (node.type == XmlElementType.Inline) {
-        addWithinTextRule(node);
-    }
-
-    addTranslateRule(node);
+    xmlParserRule.translate = TranslateRule.Inherit;
+    addParserRule(xmlParserRule);
   });
+};
+
+const getElementType = (
+  node: XmlElement,
+  elementsWithInnerText: XmlElement[],
+  processOrder: XmlElement[]
+): XmlElementType => {
+  const parent = node.parent;
+  if (!parent) return XmlElementType.Structural;
+
+  var isSiblingOfText = elementsWithInnerText.find((x) => x == parent);
+  if (isSiblingOfText) {
+    return XmlElementType.Inline;
+  }
+
+  const isChildOfInlineParent = processOrder.find(
+    (x) => x.type == XmlElementType.Inline && x.name == parent.name
+  );
+
+  if (isChildOfInlineParent) {
+    return XmlElementType.Inline;
+  }
+
+  return XmlElementType.Structural;
 };

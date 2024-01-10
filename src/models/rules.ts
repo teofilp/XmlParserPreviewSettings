@@ -1,9 +1,9 @@
-export interface XmlParserTranslateRule {
-    xpathSelector: string;
-    translate: string;
-}
+import { TranslateRule } from "./translateRule";
+import { WithinTextRule } from "./withinTextRule";
 
-export interface XmlParserWithinTextRule {
+export interface XmlParserRule {
+    translate?: TranslateRule;
+    withinText?: WithinTextRule;
+    isInline: boolean;
     xpathSelector: string;
-    withinText: string;
 }

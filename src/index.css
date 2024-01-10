@@ -1,9 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
 }
 
 #root {
   height: 100%;
+}
+
+.xmlNode {
+  margin: 0 6px;
+}
+
+.cdata {
+  background-color: rgba(173, 216, 230, 0.7);
+}
+
+.comment {
+  background-color: rgba(142, 198, 63, 0.418);
+}
+
+.processing-instruction {
+  background-color: rgba(177, 115, 0, 0.425);
+}
+
+.translatable{
+  font-weight: bold;
+  color: black;
+}
+
+.nontranslatable{
+  font-weight: normal;
+  color: gray;
 }

@@ -1,15 +1,15 @@
 import { PropsWithChildren, createContext, useState } from "react";
-import { XmlElement } from "../models/xmlElement";
+import { XmlDocument } from "../models/xmlDocument";
 
 interface AppState {
-  xmlRoot: XmlElement | null;
-  xmlDocument: Document | null;
+  xmlDocument: XmlDocument | null;
+  xmlDomDocument: Document | null;
   isInitialized: boolean;
 }
 
 const getDefaultAppState = (): AppState => ({
   xmlDocument: null,
-  xmlRoot: null,
+  xmlDomDocument: null,
   isInitialized: false,
 });
 

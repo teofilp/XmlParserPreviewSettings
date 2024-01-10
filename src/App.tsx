@@ -5,10 +5,13 @@ import { RcFile } from "antd/es/upload";
 
 import "./App.css";
 import { getXmlAsObjectAsync } from "./utils/xmlParser";
-import XmlElementComponent from "./components/XmlElement";
 import { AppContext } from "./context/AppContext";
 import { useAppDispatch } from "./store";
-import { setTranslateRules, setWithinTextRules } from "./store/parserSettings/parserSettingsSlice";
+import {
+  setRules,
+} from "./store/parserSettings/parserSettingsSlice";
+import { XmlRenderer } from "./components/XmlRenderer";
+import xmlRuleApplier from "./utils/xmlRuleApplier";
 
 function App() {
   const [file, setFile] = useState<RcFile | null>(null);
@@ -18,11 +21,14 @@ function App() {
   useEffect(() => {
     if (!file) return;
 
-    getXmlAsObjectAsync(file).then(({ translateRules, withinTextRules, ...rest }) => {
-      dispatch(setTranslateRules(translateRules));
-      dispatch(setWithinTextRules(withinTextRules));
-      initializeAppState(rest)
-    }).catch(console.error);
+    getXmlAsObjectAsync(file)
+      .then(({ parserRules, ...rest }) => {
+        dispatch(setRules(parserRules));
+        console.log(parserRules);
+        xmlRuleApplier.applyRules(rest.xmlDocument, rest.xmlDomDocument, parserRules);
+        initializeAppState(rest);
+      })
+      .catch(console.error);
   }, [file]);
 
   return (
@@ -39,7 +45,11 @@ function App() {
       <Flex flex={2}>
         <div>
           XML Preview
-          {appState.xmlRoot && <XmlElementComponent element={appState.xmlRoot} />}
+          <div>
+            {appState.xmlDocument && (
+              <XmlRenderer elements={appState.xmlDocument?.children} />
+            )}
+          </div>
         </div>
       </Flex>
     </Flex>
