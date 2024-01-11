@@ -31,6 +31,7 @@ export const AppContext = createContext({
   getElementSettings: (_: XmlElement): XmlElementSettings | undefined => {
     return;
   },
+  resetAppState: () => {}
 });
 
 export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
@@ -43,6 +44,10 @@ export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
       ...payload,
     });
   };
+
+  const resetAppState = () => {
+    setAppState(getDefaultAppState());
+  }
 
   const getElementSettings = useCallback(
     (element: XmlElement): XmlElementSettings => {
@@ -71,6 +76,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
     appState,
     initializeAppState,
     getElementSettings,
+    resetAppState
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

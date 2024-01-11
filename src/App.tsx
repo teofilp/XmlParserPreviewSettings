@@ -16,7 +16,7 @@ import xmlRuleApplier from "./utils/xmlRuleApplier";
 
 function App() {
   const [file, setFile] = useState<RcFile | null>(null);
-  const { initializeAppState, appState } = useContext(AppContext);
+  const { initializeAppState, appState, resetAppState } = useContext(AppContext);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -46,7 +46,10 @@ function App() {
         {file && (
           <div>
             {file.name}
-            <button onClick={() => setFile(null)}>Reset</button>
+            <button onClick={() => {
+              setFile(null);
+              resetAppState();
+            }}>Reset</button>
           </div>
         )}
       </Flex>

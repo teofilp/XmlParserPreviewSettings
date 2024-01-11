@@ -49,7 +49,7 @@ const ElementNode = ({ element }: PropsWithChildren<XmlNodeProps>) => {
     appState: { xmlDocument },
     getElementSettings
   } = useContext(AppContext);
-  if (element.depth == 0) console.log(element);
+  // if (element.depth == 0) console.log(element);
 
   const settings = getElementSettings(element);
 

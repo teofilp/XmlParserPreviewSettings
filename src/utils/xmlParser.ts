@@ -144,7 +144,6 @@ const autopopulateElementType = (
     current.children?.forEach((x) => queue.push(x));
   }
 
-  // we are only interested in
   processOrder = processOrder.filter((x) =>
     [NodeType.Element].includes(x.xmlNode.nodeType)
   );
@@ -153,10 +152,9 @@ const autopopulateElementType = (
     const elementType = getElementType(
       node,
       elementsWithInnerText,
-      processOrder,
       inlineElements
     );
-    
+
     const xmlParserRule: XmlParserRule = {
       id: uuidv4(),
       isInline: elementType == XmlElementType.Inline,
@@ -177,7 +175,7 @@ const autopopulateElementType = (
 const getElementType = (
   node: XmlElementWithRelations,
   elementsWithInnerText: XmlElement[],
-  processOrder: XmlElement[],
+
   inlineElements: XmlElement[]
 ): XmlElementType => {
   const parent = node.parent;
@@ -192,7 +190,6 @@ const getElementType = (
     (x) => x.name == parent.name
   );
 
-  console.log("child of inline", node.name, processOrder);
   if (isChildOfInlineParent) {
     return XmlElementType.Inline;
   }
