@@ -26,7 +26,7 @@ export const XmlRenderer = ({
       {elements.map((x) => {
         const Component = rendererMap[x.xmlNode.nodeType];
 
-        return <Component element={x} {...rest}/>;
+        return <Component key={x.id} element={x} {...rest}/>;
       })}
     </>
   );

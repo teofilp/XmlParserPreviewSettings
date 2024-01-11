@@ -8,7 +8,8 @@ import { getXmlAsObjectAsync } from "./utils/xmlParser";
 import { AppContext } from "./context/AppContext";
 import { useAppDispatch } from "./store";
 import {
-  setRules,
+  setDefaultRules,
+  setRulesMaps,
 } from "./store/parserSettings/parserSettingsSlice";
 import { XmlRenderer } from "./components/XmlRenderer";
 import xmlRuleApplier from "./utils/xmlRuleApplier";
@@ -23,10 +24,17 @@ function App() {
 
     getXmlAsObjectAsync(file)
       .then(({ parserRules, ...rest }) => {
-        dispatch(setRules(parserRules));
-        console.log(parserRules);
-        xmlRuleApplier.applyRules(rest.xmlDocument, rest.xmlDomDocument, parserRules);
-        initializeAppState(rest);
+        var { elementRuleMaps, elementSettings } = xmlRuleApplier.applyRules(
+          rest.xmlDocument,
+          rest.xmlDomDocument,
+          parserRules
+        );
+        initializeAppState({
+          ...rest,
+          xmlElementSettings: elementSettings,
+        });
+        dispatch(setRulesMaps(elementRuleMaps));
+        dispatch(setDefaultRules(parserRules));
       })
       .catch(console.error);
   }, [file]);
@@ -42,12 +50,12 @@ function App() {
           </div>
         )}
       </Flex>
-      <Flex flex={2}>
-        <div>
+      <Flex flex={1}>
+        <div className="preview-panel">
           XML Preview
           <div>
             {appState.xmlDocument && (
-              <XmlRenderer elements={appState.xmlDocument?.children} />
+              <XmlRenderer elements={appState.xmlDocument?.getRootNodes()} />
             )}
           </div>
         </div>

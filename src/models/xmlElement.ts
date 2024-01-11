@@ -4,16 +4,20 @@ import { TranslateRule } from "./translateRule";
 import { XmlElementType } from "./xmlElementType";
 
 export interface XmlElement {
+    id: string;
     name: string;
     attributes: Attribute[];
-    children?: XmlElement[];
     isText: boolean;
     depth: number;
-    parent: XmlElement | null;
+    parentId: string | null;
     textValue?: string;
     type?: XmlElementType;
     xmlNode: DomXmlElement;
-    settings?: XmlSettings;
+}
+
+export interface XmlElementWithRelations extends XmlElement {
+    parent: XmlElementWithRelations | null;
+    children?: XmlElementWithRelations[];
 }
 
 interface Attribute {
@@ -21,9 +25,15 @@ interface Attribute {
     value: any;
 }
 
-interface XmlSettings {
+export interface XmlElementSettings {
+    elementId: string;
     translateSettingValue?: TranslateRule;
     translateCurrentValue?: TranslateRule;
     withinTextRuleValue?: WithinTextRule,
     type?: XmlElementType;
+}
+
+export interface XmlElementRuleMap {
+    xmlElementId: string;
+    ruleId: string;
 }

@@ -1,11 +1,10 @@
 import { RcFile } from "antd/es/upload";
+import { v4 as uuidv4 } from "uuid";
 import { getFileContentAsTextAsync } from "./file";
-import { XmlElement } from "../models/xmlElement";
+import { XmlElement, XmlElementWithRelations } from "../models/xmlElement";
 import { XmlElementType } from "../models/xmlElementType";
 import { DomXmlElement } from "../models/domXmlElement";
-import {
-    XmlParserRule,
-} from "../models/rules";
+import { XmlParserRule } from "../models/rules";
 import { NodeType } from "../models/nodeType";
 import { XmlDocument } from "../models/xmlDocument";
 import { TranslateRule } from "../models/translateRule";
@@ -30,14 +29,13 @@ export const getXmlAsObjectAsync = async (
     file.type as DOMParserSupportedType
   );
 
-  const xmlDocument = {
-    children: ([...xmlDomDocument.childNodes] as DomXmlElement[])
+  const xmlDocument: XmlDocument = new XmlDocument(
+    ([...xmlDomDocument.childNodes] as DomXmlElement[])
       .map((x) => handleResult(x, addParserRule))
-      .filter((x) => !!x),
-  };
+      .filter((x) => !!x)
+  );
 
   console.log(xmlDocument);
-  console.log(parserRules);
 
   return {
     xmlDocument,
@@ -46,10 +44,7 @@ export const getXmlAsObjectAsync = async (
   };
 };
 
-const handleResult = (
-  node: DomXmlElement,
-  addParserRule: any
-) => {
+const handleResult = (node: DomXmlElement, addParserRule: any) => {
   const element = mapToXmlElement(node);
 
   if (!element) {
@@ -64,13 +59,14 @@ const handleResult = (
 const mapToXmlElement = (
   node: DomXmlElement,
   depth = 0,
-  parent: XmlElement | null = null
-): XmlElement => {
+  parent: XmlElementWithRelations | null = null
+): XmlElementWithRelations => {
   if (isWhitespaceTextNode(node) || !nodeTypeIsValid(node))
-    return null as unknown as XmlElement;
+    return null as unknown as XmlElementWithRelations;
 
   // create xmlElement
-  var element: XmlElement = {
+  var element: XmlElementWithRelations = {
+    id: uuidv4(),
     name: node.nodeName,
     attributes: node.attributes
       ? [...node.attributes].map((entry) => ({
@@ -81,6 +77,7 @@ const mapToXmlElement = (
     isText: node.nodeType == NodeType.Text, // text type
     depth: depth,
     parent: parent,
+    parentId: parent?.id ?? null,
     textValue: node.textContent ?? "",
     xmlNode: node,
   };
@@ -125,12 +122,13 @@ const buildXPathSelector = (node: DomXmlElement) => {
 };
 
 const autopopulateElementType = (
-  element: XmlElement,
-  addParserRule: (rule: XmlParserRule) => void,
+  element: XmlElementWithRelations,
+  addParserRule: (rule: XmlParserRule) => void
 ) => {
   const queue = [element];
-  let processOrder: XmlElement[] = [];
-  const elementsWithInnerText: XmlElement[] = [];
+  let processOrder: XmlElementWithRelations[] = [];
+  const elementsWithInnerText: XmlElementWithRelations[] = [];
+  const inlineElements: XmlElementWithRelations[] = [];
 
   while (queue.length > 0) {
     var current = queue.shift()!;
@@ -146,31 +144,41 @@ const autopopulateElementType = (
     current.children?.forEach((x) => queue.push(x));
   }
 
-  // we are only interested in 
+  // we are only interested in
   processOrder = processOrder.filter((x) =>
     [NodeType.Element].includes(x.xmlNode.nodeType)
   );
 
   processOrder.forEach((node) => {
-    const elementType = getElementType(node, elementsWithInnerText, processOrder);
+    const elementType = getElementType(
+      node,
+      elementsWithInnerText,
+      processOrder,
+      inlineElements
+    );
+    
     const xmlParserRule: XmlParserRule = {
-        isInline: elementType == XmlElementType.Inline,
-        xpathSelector: buildXPathSelector(node.xmlNode)
-    }
+      id: uuidv4(),
+      isInline: elementType == XmlElementType.Inline,
+      xpathSelector: buildXPathSelector(node.xmlNode),
+    };
 
     if (xmlParserRule.isInline) {
       xmlParserRule.withinText = WithinTextRule.Yes;
+      inlineElements.push(node);
     }
 
     xmlParserRule.translate = TranslateRule.Inherit;
+
     addParserRule(xmlParserRule);
   });
 };
 
 const getElementType = (
-  node: XmlElement,
+  node: XmlElementWithRelations,
   elementsWithInnerText: XmlElement[],
-  processOrder: XmlElement[]
+  processOrder: XmlElement[],
+  inlineElements: XmlElement[]
 ): XmlElementType => {
   const parent = node.parent;
   if (!parent) return XmlElementType.Structural;
@@ -180,10 +188,11 @@ const getElementType = (
     return XmlElementType.Inline;
   }
 
-  const isChildOfInlineParent = processOrder.find(
-    (x) => x.type == XmlElementType.Inline && x.name == parent.name
+  const isChildOfInlineParent = inlineElements.find(
+    (x) => x.name == parent.name
   );
 
+  console.log("child of inline", node.name, processOrder);
   if (isChildOfInlineParent) {
     return XmlElementType.Inline;
   }

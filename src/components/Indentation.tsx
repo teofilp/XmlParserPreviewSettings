@@ -8,9 +8,12 @@ export const Indentation = ({
   className,
 }: PropsWithChildren<any>) => {
   var paddingInlineStart = isInline ? 0 : depth * 4 + "px";
+  var Component = isInline
+    ? ({ children, ...props }: any) => <span {...props}>{children}</span>
+    : ({ children, ...props }: any) => <div {...props}>{children}</div>;
 
   return (
-    <div
+    <Component
       style={{
         paddingInlineStart,
         ...style,
@@ -18,6 +21,6 @@ export const Indentation = ({
       className={className}
     >
       {children}
-    </div>
+    </Component>
   );
 };

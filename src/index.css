@@ -37,3 +37,30 @@ html, body {
   font-weight: normal;
   color: gray;
 }
+
+span.nodeTag {
+  background-color: unset;
+  color: rgb(187, 187, 187);
+  padding: 2px;
+  border-radius: 2px;
+}
+
+span.nodeTag.inlineTag {
+  color: black;
+  background-color: rgba(235, 132, 255, 0.329);
+  margin: 0 2px;
+}
+
+div.preview-panel {
+  font-size: 16px;
+  letter-spacing: 1px;
+  line-height: 30px;
+}
+
+.ant-popover .ant-popover-inner {
+  padding: 4px;
+}
+
+.ant-popover-title {
+  text-align: center;
+}
