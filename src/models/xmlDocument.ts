@@ -16,6 +16,10 @@ export class XmlDocument {
         return this.nodes.filter(x => x.parentId == null);
     }
 
+    getNodeById(id: string): XmlElement {
+        return this.nodes.find(x => x.id == id)!;
+    }
+
     private flattenXmlTree(elements: XmlElementWithRelations[]) {
         elements.forEach(el => {
             this.nodes.push(el);

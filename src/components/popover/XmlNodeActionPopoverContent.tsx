@@ -81,7 +81,7 @@ export const XmlNodeActionPopoverContent = ({
   };
 
   return (
-    <Flex style={{ gap: 4 }} dir="row">
+    <Flex style={{ gap: 8 }} dir="row">
       <Popover title={elementTypeActionMapper[elementType].tooltip}>
         <Flex onClick={elementTypeActionMapper[elementType].action} className={classes.actionButton}>
           {elementTypeActionMapper[elementType].label}

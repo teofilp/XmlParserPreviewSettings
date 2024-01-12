@@ -42,7 +42,7 @@ span.nodeTag {
   background-color: unset;
   color: rgb(187, 187, 187);
   padding: 2px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 span.nodeTag.inlineTag {
@@ -51,11 +51,7 @@ span.nodeTag.inlineTag {
   margin: 0 2px;
 }
 
-div.preview-panel {
-  font-size: 16px;
-  letter-spacing: 1px;
-  line-height: 30px;
-}
+
 
 .ant-popover .ant-popover-inner {
   padding: 4px;
@@ -63,4 +59,31 @@ div.preview-panel {
 
 .ant-popover-title {
   text-align: center;
+}
+
+div.preview-panel {
+  font-size: 16px;
+  letter-spacing: 1px;
+  line-height: 30px;
+  overflow-y: auto;
+}
+
+.preview-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+.preview-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+.preview-panel::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+
+/* Handle on hover */
+.preview-panel::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

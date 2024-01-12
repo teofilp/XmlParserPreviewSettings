@@ -36,7 +36,6 @@ export const parserSettingsSlice = createSlice({
       state: XmlParserSettingsState,
       { payload }: PayloadAction<XmlParserRuleOverride>
     ) => {
-      console.log("setRuleOverride");
       const existingOverride = state.overrides.find((x) => x.id == payload.id);
 
       if (!existingOverride) {
@@ -53,10 +52,22 @@ export const parserSettingsSlice = createSlice({
           : item
       );
     },
+    deleteRuleOverride: (
+        state: XmlParserSettingsState,
+        { payload }: PayloadAction<string> 
+    ) => {
+        state.overrides = state.overrides.filter(x => x.id !== payload);
+    },
+    resetState: (state: any) => {
+        const defaultState: any = getDefaultState();
+        Object.keys(defaultState).forEach((key) => {
+            state[key] = defaultState[key];
+        });
+    }
   },
 });
 
-export const { setDefaultRules, setRulesMaps, setRuleOverride } =
+export const { setDefaultRules, setRulesMaps, setRuleOverride, deleteRuleOverride, resetState } =
   parserSettingsSlice.actions;
 
 export const getXmlElementRule =

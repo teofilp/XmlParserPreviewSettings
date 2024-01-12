@@ -1,0 +1,25 @@
+.list-item-container {
+    padding: 12px;
+    background-color: white;
+    box-shadow: 2px 2px 10px #ccc;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.list-item-tagName {
+    padding: 4px 8px;
+    background-color: rgba(187, 187, 187, 0.5);
+    font-size: 16px;
+    letter-spacing: 1px;
+    border-radius: 4px;
+}
+
+.list-item-tagName.inlineTag {
+    background-color: rgba(235, 132, 255, 0.329);
+}
+
+.list-item-column {
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
