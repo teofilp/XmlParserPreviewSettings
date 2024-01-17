@@ -18,6 +18,7 @@ import { RulesOverridesList } from "./components/RulesOverridesList";
 import { DownloadOutlined } from "@ant-design/icons";
 import { ExportSettingsModal } from "./components/ExportSettingsModal";
 import isNil from "lodash.isnil";
+import { XPathRulesList } from "./components/XPathRulesList";
 
 function App() {
   const [file, setFile] = useState<RcFile | null>(null);
@@ -74,7 +75,7 @@ function App() {
                 Reset
               </button>
             </div>
-            {isNil(appState.useElementRules) && (
+            {isNil(appState.useElementRules) ? (
               <Flex vertical align="center">
                 Select rules configuration mode
                 <Flex gap={12}>
@@ -86,8 +87,11 @@ function App() {
                   </Button>
                 </Flex>
               </Flex>
+            ) : appState.useElementRules ? (
+              <RulesOverridesList />
+            ) : (
+              <XPathRulesList />
             )}
-            {appState.useElementRules && <RulesOverridesList />}
             <Button
               style={{ marginTop: 32 }}
               onClick={() => setIsOpen(true)}

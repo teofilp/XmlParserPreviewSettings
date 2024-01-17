@@ -1,7 +1,10 @@
 import { Form, Input, Modal } from "antd";
 import xmlBuilder from "../utils/xmlBuilder";
 import { useSelector } from "react-redux";
-import { getRulesOverrides } from "../store/parserSettings/parserSettingsSlice";
+import {
+  getApplicableRules,
+  getRulesOverrides,
+} from "../store/parserSettings/parserSettingsSlice";
 import { downloadXml } from "../utils/xmlDownload";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
@@ -25,13 +28,19 @@ export const ExportSettingsModal = ({
 }: ExportSettingsModalProps) => {
   const { 0: form } = Form.useForm();
   const { appState } = useContext(AppContext);
-  const rules = useSelector(getRulesOverrides);
+  const applicableRules = useSelector(getApplicableRules);
+  const overrides = useSelector(getRulesOverrides);
 
   const handleFinish = (data: any) => {
     const rootElementName = appState.xmlDocument
       ?.getRootNodes()
       .find((x) => x.xmlNode.nodeType == NodeType.Element)!.name;
-      
+
+    // get applicable rules for the created overrides
+    const rules = applicableRules.filter((x) =>
+      overrides.find((y) => y.id == x.id)
+    );
+
     const xmlString = xmlBuilder.buildXml(data, rules, rootElementName);
     downloadXml(xmlString);
     setIsOpen(false);

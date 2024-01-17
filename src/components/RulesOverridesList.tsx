@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Button, Flex } from "antd";
 import { RootState, useAppDispatch } from "../store";
 import { AppContext } from "../context/AppContext";
-import classes from "./rulesOverridesList.module.css";
+import classes from "./list.module.css";
 import { XmlNodeActionPopoverContent } from "./popover/XmlNodeActionPopoverContent";
 import { DeleteFilled } from "@ant-design/icons";
 import { deleteRuleOverride } from "../store/parserSettings/parserSettingsSlice";

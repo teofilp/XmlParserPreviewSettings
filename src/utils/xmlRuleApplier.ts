@@ -1,5 +1,6 @@
+import isNil from "lodash.isnil";
 import { DomXmlElement } from "../models/domXmlElement";
-import { XmlParserRule } from "../models/rules";
+import { XmlParserRule, XmlParserRuleOverride } from "../models/rules";
 import { TranslateRule } from "../models/translateRule";
 import { XmlDocument } from "../models/xmlDocument";
 import {
@@ -16,7 +17,7 @@ class XmlRuleApplier {
   public applyRules(
     xmlDocument: XmlDocument,
     document: Document,
-    rules: XmlParserRule[]
+    rules: XmlParserRuleOverride[]
   ): {
     elementSettings: XmlElementSettings[];
     elementRuleMaps: XmlElementRuleMap[];
@@ -33,9 +34,13 @@ class XmlRuleApplier {
     };
   }
 
-  private setValuesBasedOnRules(document: Document, rules: XmlParserRule[]) {
+  private setValuesBasedOnRules(
+    document: Document,
+    rules: XmlParserRuleOverride[]
+  ) {
     rules.forEach((rule) => {
       const nodes = this.evaluateXPath(document, rule.xpathSelector);
+      console.log(rule, nodes);
 
       nodes.forEach((node) => {
         this.addRuleMap(node, rule);
@@ -43,16 +48,23 @@ class XmlRuleApplier {
         const xmlSettings = this.getSettingForXmlElement(node);
 
         xmlSettings.translateSettingValue = rule.translate;
-        xmlSettings.translateCurrentValue = rule.translate;
-        xmlSettings.withinTextRuleValue = rule.withinText;
-        xmlSettings.type = rule.isInline
-          ? XmlElementType.Inline
-          : XmlElementType.Structural;
+        // do not override if override does not contain value
+        xmlSettings.translateCurrentValue = rule.translate
+          ? rule.translate
+          : xmlSettings.translateCurrentValue;
+        xmlSettings.withinTextRuleValue = rule.withinTextRule
+          ? rule.withinTextRule
+          : xmlSettings.withinTextRuleValue;
+        xmlSettings.type = !isNil(rule.isInline)
+          ? rule.isInline
+            ? XmlElementType.Inline
+            : XmlElementType.Structural
+          : xmlSettings.type;
       });
     });
   }
 
-  private addRuleMap(node: XmlElement, rule: XmlParserRule) {
+  private addRuleMap(node: XmlElement, rule: XmlParserRuleOverride) {
     this.elementRuleMaps.push({ xmlElementId: node.id, ruleId: rule.id });
   }
 
@@ -67,7 +79,7 @@ class XmlRuleApplier {
   private cascadeSettings(
     xmlDocument: XmlDocument,
     element: XmlElement,
-    rule: Omit<XmlParserRule, "xpathSelector">
+    rule: Omit<XmlParserRuleOverride, "xpathSelector">
   ) {
     if (!this.elementSettingsExists(element)) return;
 
@@ -80,8 +92,8 @@ class XmlRuleApplier {
 
   private updateElementSettings(
     element: XmlElement,
-    rule: Omit<XmlParserRule, "xpathSelector">
-  ): Omit<XmlParserRule, "xpathSelector"> {
+    rule: Omit<XmlParserRuleOverride, "xpathSelector">
+  ): Omit<XmlParserRuleOverride, "xpathSelector"> {
     const newRule = { ...rule };
     const existingSettings = this.getSettingForXmlElement(element);
 
@@ -94,7 +106,7 @@ class XmlRuleApplier {
     return newRule;
   }
 
-  private getDefaultParserRule(): Omit<XmlParserRule, "xpathSelector"> {
+  private getDefaultParserRule(): Omit<XmlParserRuleOverride, "xpathSelector"> {
     return {
       id: "",
       isInline: false,

@@ -89,10 +89,10 @@ export const getXmlElementRule =
     };
   };
 
-export const getApplicableRules = (state: RootState): XmlParserRule[] => {
+export const getApplicableRules = (state: RootState): XmlParserRuleOverride[] => {
   const store = state.parserSettings;
 
-  return store.defaultRules.map((defaultRule) => {
+  const defaultRulesWithOverrides: XmlParserRuleOverride[] =  store.defaultRules.map((defaultRule) => {
     const override = store.overrides.find((o) => o.id == defaultRule.id);
 
     if (!override) {
@@ -104,6 +104,11 @@ export const getApplicableRules = (state: RootState): XmlParserRule[] => {
       ...override,
     };
   });
+
+  const xpathRules = store.overrides.filter(x => 
+    !store.defaultRules.find(y => y.id == x.id));
+
+    return defaultRulesWithOverrides.concat(...xpathRules);
 };
 
 export const getRulesOverrides = (state: RootState) => state.parserSettings.overrides;
