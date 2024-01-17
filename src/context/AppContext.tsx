@@ -16,6 +16,7 @@ interface AppState {
   xmlDomDocument: Document | null;
   isInitialized: boolean;
   xmlElementSettings: XmlElementSettings[];
+  useElementRules: boolean | null;
 }
 
 const getDefaultAppState = (): AppState => ({
@@ -23,23 +24,30 @@ const getDefaultAppState = (): AppState => ({
   xmlDomDocument: null,
   isInitialized: false,
   xmlElementSettings: [],
+  useElementRules: null,
 });
 
 export const AppContext = createContext({
   appState: getDefaultAppState(),
-  initializeAppState: (_: Omit<AppState, "isInitialized">) => {},
+  initializeAppState: (
+    _: Omit<AppState, "isInitialized" | "useElementRules">
+  ) => {},
   getElementSettings: (_: XmlElement): XmlElementSettings | undefined => {
     return;
   },
-  resetAppState: () => {}
+  resetAppState: () => {},
+  setModeType: (useElementRules: boolean) => {},
 });
 
 export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [appState, setAppState] = useState<AppState>(getDefaultAppState());
   const rules = useSelector(getApplicableRules);
 
-  const initializeAppState = (payload: Omit<AppState, "isInitialized">) => {
+  const initializeAppState = (
+    payload: Omit<AppState, "isInitialized" | "useElementRules">
+  ) => {
     setAppState({
+      ...getDefaultAppState(),
       isInitialized: true,
       ...payload,
     });
@@ -47,7 +55,14 @@ export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
 
   const resetAppState = () => {
     setAppState(getDefaultAppState());
-  }
+  };
+
+  const setModeType = (useElementRules: boolean) => {
+    setAppState((old) => ({
+      ...old,
+      useElementRules,
+    }));
+  };
 
   const getElementSettings = useCallback(
     (element: XmlElement): XmlElementSettings => {
@@ -66,9 +81,9 @@ export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
       rules
     );
 
-    setAppState(old => ({
-        ...old,
-        xmlElementSettings: elementSettings
+    setAppState((old) => ({
+      ...old,
+      xmlElementSettings: elementSettings,
     }));
   }, [rules]);
 
@@ -76,7 +91,8 @@ export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
     appState,
     initializeAppState,
     getElementSettings,
-    resetAppState
+    resetAppState,
+    setModeType,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,4 +1,11 @@
 import { Form, Input, Modal } from "antd";
+import xmlBuilder from "../utils/xmlBuilder";
+import { useSelector } from "react-redux";
+import { getRulesOverrides } from "../store/parserSettings/parserSettingsSlice";
+import { downloadXml } from "../utils/xmlDownload";
+import { useContext } from "react";
+import { AppContext } from "../context/AppContext";
+import { NodeType } from "../models/nodeType";
 
 interface ExportSettingsModalProps {
   isOpen: boolean;
@@ -17,8 +24,18 @@ export const ExportSettingsModal = ({
   setIsOpen,
 }: ExportSettingsModalProps) => {
   const { 0: form } = Form.useForm();
+  const { appState } = useContext(AppContext);
+  const rules = useSelector(getRulesOverrides);
 
-  const handleFinish = (data: any) => { console.log(data); };
+  const handleFinish = (data: any) => {
+    const rootElementName = appState.xmlDocument
+      ?.getRootNodes()
+      .find((x) => x.xmlNode.nodeType == NodeType.Element)!.name;
+      
+    const xmlString = xmlBuilder.buildXml(data, rules, rootElementName);
+    downloadXml(xmlString);
+    setIsOpen(false);
+  };
 
   return (
     <Modal

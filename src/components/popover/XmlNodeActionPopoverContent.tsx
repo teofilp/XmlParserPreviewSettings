@@ -34,7 +34,7 @@ export const XmlNodeActionPopoverContent = ({
   } = {
     [TranslateRule.No]: {
       tooltip: "Make translatable",
-      label: "T",
+      label: "NT",
       action: () =>
         dispatch(
           setRuleOverride({
@@ -46,7 +46,7 @@ export const XmlNodeActionPopoverContent = ({
     },
     [TranslateRule.Yes]: {
       tooltip: "Make nontranslatable",
-      label: "NT",
+      label: "T",
       action: () => dispatch(
         setRuleOverride({
           id: xmlRule.id,
@@ -62,7 +62,7 @@ export const XmlNodeActionPopoverContent = ({
   } = {
     [XmlElementType.Inline]: {
       tooltip: "Make structural",
-      label: "S",
+      label: "I",
       action: () => dispatch(setRuleOverride({
         id: xmlRule.id,
         isInline: false,
@@ -71,7 +71,7 @@ export const XmlNodeActionPopoverContent = ({
     },
     [XmlElementType.Structural]: {
       tooltip: "Make inline",
-      label: "I",
+      label: "S",
       action: () => dispatch(setRuleOverride({
         id: xmlRule.id,
         isInline: true,

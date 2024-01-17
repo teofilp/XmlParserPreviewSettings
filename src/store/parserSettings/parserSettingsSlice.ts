@@ -106,4 +106,6 @@ export const getApplicableRules = (state: RootState): XmlParserRule[] => {
   });
 };
 
+export const getRulesOverrides = (state: RootState) => state.parserSettings.overrides;
+
 export default parserSettingsSlice.reducer;

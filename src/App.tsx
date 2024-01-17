@@ -17,10 +17,11 @@ import xmlRuleApplier from "./utils/xmlRuleApplier";
 import { RulesOverridesList } from "./components/RulesOverridesList";
 import { DownloadOutlined } from "@ant-design/icons";
 import { ExportSettingsModal } from "./components/ExportSettingsModal";
+import isNil from "lodash.isnil";
 
 function App() {
   const [file, setFile] = useState<RcFile | null>(null);
-  const { initializeAppState, appState, resetAppState } =
+  const { initializeAppState, appState, resetAppState, setModeType } =
     useContext(AppContext);
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
@@ -73,8 +74,28 @@ function App() {
                 Reset
               </button>
             </div>
-            <RulesOverridesList />
-            <Button onClick={() => setIsOpen(true)} icon={<DownloadOutlined/>} type="primary">Export settings</Button>
+            {isNil(appState.useElementRules) && (
+              <Flex vertical align="center">
+                Select rules configuration mode
+                <Flex gap={12}>
+                  <Button type="primary" onClick={() => setModeType(true)}>
+                    Element rules
+                  </Button>
+                  <Button type="primary" onClick={() => setModeType(false)}>
+                    XPath rules
+                  </Button>
+                </Flex>
+              </Flex>
+            )}
+            {appState.useElementRules && <RulesOverridesList />}
+            <Button
+              style={{ marginTop: 32 }}
+              onClick={() => setIsOpen(true)}
+              icon={<DownloadOutlined />}
+              type="primary"
+            >
+              Export settings
+            </Button>
           </Flex>
         )}
       </Flex>
