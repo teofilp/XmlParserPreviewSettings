@@ -7,7 +7,9 @@ import {
   deleteRuleOverride,
   setRuleOverride,
 } from "../store/parserSettings/parserSettingsSlice";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import debounce from "lodash.debounce";
+import { setXPathSelector } from "../store/activeNodesSlice";
 
 const getDefaultValues = (): XmlParserRuleOverride => ({
   xpathSelector: "",
@@ -41,7 +43,8 @@ interface CreateXPathRuleFormProps {
 }
 
 export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
-  const form = Form.useForm()[0];
+  const [form] = Form.useForm();
+  const xpathSelector = Form.useWatch("xpathSelector", form);
   const dispatch = useAppDispatch();
   const isCreate = !item;
   const [isEditing, setIsEditing] = useState<boolean>(isCreate);
@@ -57,11 +60,21 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
           ...formData,
         };
     dispatch(setRuleOverride(data));
+    dispatch(setXPathSelector(""));
     isCreate && form.resetFields();
     !isCreate && setIsEditing(false);
   };
 
-  const handleRemove = () => dispatch(deleteRuleOverride(item!.id));
+  useEffect(() => {
+    const timeoutId = setTimeout(() => dispatch(setXPathSelector(xpathSelector)), 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [xpathSelector]);
+
+  const handleRemove = () => {
+    dispatch(deleteRuleOverride(item!.id));
+    dispatch(setXPathSelector(""));
+  }
 
   return (
     <Form
@@ -85,7 +98,7 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
         name="isInline"
         style={{ marginBottom: 36, width: "49%" }}
       >
-        <Select  disabled={!isEditing} options={elementTypeOptions} />
+        <Select defaultValue={false} disabled={!isEditing} options={elementTypeOptions} />
       </Form.Item>
       <Form.Item<string>
         label="Translate"

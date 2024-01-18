@@ -43,6 +43,12 @@ span.nodeTag {
   color: rgb(187, 187, 187);
   padding: 2px;
   border-radius: 4px;
+  transition: all .3s;
+}
+
+span.nodeTag.selected {
+  background-color: rgba(104, 185, 104, .7);
+  color: white;
 }
 
 span.nodeTag.inlineTag {
@@ -50,8 +56,6 @@ span.nodeTag.inlineTag {
   background-color: rgba(235, 132, 255, 0.329);
   margin: 0 2px;
 }
-
-
 
 .ant-popover .ant-popover-inner {
   padding: 4px;

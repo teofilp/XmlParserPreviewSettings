@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import parserSettings from "./parserSettings/parserSettingsSlice";
+import activeNodes from "./activeNodesSlice";
 
 const store = configureStore({
     reducer: {
-        parserSettings
+        parserSettings,
+        activeNodes
     }
 });
 

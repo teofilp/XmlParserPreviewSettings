@@ -10,6 +10,8 @@ import { XmlElement, XmlElementSettings } from "../models/xmlElement";
 import { useSelector } from "react-redux";
 import { getApplicableRules } from "../store/parserSettings/parserSettingsSlice";
 import xmlRuleApplier from "../utils/xmlRuleApplier";
+import { getXPathSelector, setNodeIds } from "../store/activeNodesSlice";
+import { useAppDispatch } from "../store";
 
 interface AppState {
   xmlDocument: XmlDocument | null;
@@ -42,6 +44,8 @@ export const AppContext = createContext({
 export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [appState, setAppState] = useState<AppState>(getDefaultAppState());
   const rules = useSelector(getApplicableRules);
+  const xpathSelector = useSelector(getXPathSelector);
+  const dispatch = useAppDispatch();
 
   const initializeAppState = (
     payload: Omit<AppState, "isInitialized" | "useElementRules">
@@ -86,6 +90,17 @@ export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
       xmlElementSettings: elementSettings,
     }));
   }, [rules]);
+
+  useEffect(() => {
+    if (!appState.xmlDomDocument || !xpathSelector) return;
+
+    const nodesIds = xmlRuleApplier
+        .evaluateXPath(appState.xmlDomDocument, xpathSelector)
+        .filter(x => !!x)
+        .map(x => x.id);
+        
+    dispatch(setNodeIds(nodesIds));
+  }, [xpathSelector, appState.xmlDomDocument]);
 
   const value = {
     appState,

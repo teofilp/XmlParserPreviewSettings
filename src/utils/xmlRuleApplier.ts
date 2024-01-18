@@ -40,14 +40,15 @@ class XmlRuleApplier {
   ) {
     rules.forEach((rule) => {
       const nodes = this.evaluateXPath(document, rule.xpathSelector);
-      console.log(rule, nodes);
 
       nodes.forEach((node) => {
         this.addRuleMap(node, rule);
 
         const xmlSettings = this.getSettingForXmlElement(node);
 
-        xmlSettings.translateSettingValue = rule.translate;
+        xmlSettings.translateSettingValue = rule.translate
+          ? rule.translate
+          : xmlSettings.translateSettingValue;
         // do not override if override does not contain value
         xmlSettings.translateCurrentValue = rule.translate
           ? rule.translate
@@ -114,25 +115,31 @@ class XmlRuleApplier {
     };
   }
 
-  private evaluateXPath(document: Document, xpath: string): XmlElement[] {
+  public evaluateXPath(document: Document, xpath: string): XmlElement[] {
     const elements: XmlElement[] = [];
-    const result = document.evaluate(
-      xpath,
-      document,
-      null,
-      XPathResult.ANY_TYPE,
-      null
-    );
 
-    let current: DomXmlElement | null =
-      result.iterateNext() as DomXmlElement | null;
+    try {
+      const result = document.evaluate(
+        xpath,
+        document,
+        null,
+        XPathResult.ANY_TYPE,
+        null
+      );
 
-    while (current) {
-      elements.push(current.xmlElement!);
-      current = result.iterateNext() as DomXmlElement | null;
+      let current: DomXmlElement | null =
+        result.iterateNext() as DomXmlElement | null;
+
+      while (current) {
+        elements.push(current.xmlElement!);
+        current = result.iterateNext() as DomXmlElement | null;
+      }
+
+      return elements;
+    } catch (ex) {
+      console.error("Invalid xpath");
+      return [];
     }
-
-    return elements;
   }
 
   private getSettingForXmlElement(element: XmlElement): XmlElementSettings {

@@ -41,7 +41,7 @@ export const ExportSettingsModal = ({
       overrides.find((y) => y.id == x.id)
     );
 
-    const xmlString = xmlBuilder.buildXml(data, rules, rootElementName);
+    const xmlString = xmlBuilder.buildXml(data, rules, rootElementName, appState.useElementRules!);
     downloadXml(xmlString);
     setIsOpen(false);
   };

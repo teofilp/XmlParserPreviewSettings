@@ -8,16 +8,29 @@ import { TranslateRule } from "../models/translateRule";
 import { XmlNodeActionPopoverContent } from "./popover/XmlNodeActionPopoverContent";
 import { ActionPopover } from "./popover/ActionPopover";
 import { AppContext } from "../context/AppContext";
+import { useNodeIsSelected } from "../hooks/useNodeIsSelected";
 
-const buildStartTag = (element: XmlElement, isInline: boolean) => {
+const buildStartTag = (
+  element: XmlElement,
+  isInline: boolean,
+  isSelected: boolean
+) => {
   const hasAttributes = element.attributes.length > 0;
-  const popoverContent = () => <XmlNodeActionPopoverContent element={element}/>;
+  const popoverContent = () => (
+    <XmlNodeActionPopoverContent element={element} />
+  );
 
   if (!hasAttributes) {
     return () => (
       <ActionPopover trigger="click" content={popoverContent}>
         <span
-          className={isInline ? "nodeTag inlineTag" : "nodeTag"}
+          className={
+            isSelected
+              ? "nodeTag selected"
+              : isInline
+              ? "nodeTag inlineTag"
+              : "nodeTag"
+          }
         >{`<${element.name}>`}</span>
       </ActionPopover>
     );
@@ -30,16 +43,32 @@ const buildStartTag = (element: XmlElement, isInline: boolean) => {
   return () => (
     <ActionPopover trigger="click" content={popoverContent}>
       <span
-        className={isInline ? "nodeTag inlineTag" : "nodeTag"}
+        className={
+          isSelected
+            ? "nodeTag selected"
+            : isInline
+            ? "nodeTag inlineTag"
+            : "nodeTag"
+        }
       >{`<${element.name}  ${attributes}>`}</span>
     </ActionPopover>
   );
 };
 
-const buildEndTag = (element: XmlElement, isInline: boolean) => {
+const buildEndTag = (
+  element: XmlElement,
+  isInline: boolean,
+  isSelected: boolean
+) => {
   return () => (
     <span
-      className={isInline ? "nodeTag inlineTag" : "nodeTag"}
+      className={
+        isSelected
+          ? "nodeTag selected"
+          : isInline
+          ? "nodeTag inlineTag"
+          : "nodeTag"
+      }
     >{`</${element.name}>`}</span>
   );
 };
@@ -47,9 +76,9 @@ const buildEndTag = (element: XmlElement, isInline: boolean) => {
 const ElementNode = ({ element }: PropsWithChildren<XmlNodeProps>) => {
   const {
     appState: { xmlDocument },
-    getElementSettings
+    getElementSettings,
   } = useContext(AppContext);
-  // if (element.depth == 0) console.log(element);
+  const isSelected = useNodeIsSelected(element.id);
 
   const settings = getElementSettings(element);
 
@@ -60,8 +89,8 @@ const ElementNode = ({ element }: PropsWithChildren<XmlNodeProps>) => {
     return <Indentation depth={depth}>{element.textValue!}</Indentation>;
   }
 
-  const StartTag = buildStartTag(element, isInline);
-  const EndTag = buildEndTag(element, isInline);
+  const StartTag = buildStartTag(element, isInline, isSelected);
+  const EndTag = buildEndTag(element, isInline, isSelected);
 
   const children = useMemo(
     () => xmlDocument?.getChildrenOfNode(element) ?? [],
@@ -74,9 +103,7 @@ const ElementNode = ({ element }: PropsWithChildren<XmlNodeProps>) => {
         <StartTag />
         {children.length > 0 && (
           <XmlRenderer
-            translatable={
-              settings?.translateCurrentValue == TranslateRule.Yes
-            }
+            translatable={settings?.translateCurrentValue == TranslateRule.Yes}
             elements={children}
           />
         )}
