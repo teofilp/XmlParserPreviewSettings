@@ -14,6 +14,7 @@ import { setXPathSelector } from "../store/activeNodesSlice";
 const getDefaultValues = (): XmlParserRuleOverride => ({
   xpathSelector: "",
   id: uuidv4(),
+  isInline: false,
 });
 
 const translateOptions = [
@@ -66,7 +67,10 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => dispatch(setXPathSelector(xpathSelector)), 500);
+    const timeoutId = setTimeout(
+      () => dispatch(setXPathSelector(xpathSelector)),
+      500
+    );
 
     return () => clearTimeout(timeoutId);
   }, [xpathSelector]);
@@ -74,7 +78,7 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
   const handleRemove = () => {
     dispatch(deleteRuleOverride(item!.id));
     dispatch(setXPathSelector(""));
-  }
+  };
 
   return (
     <Form
@@ -89,7 +93,19 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
         label="XPath"
         name="xpathSelector"
         style={{ marginBottom: 36, width: "100%" }}
-        rules={[{ required: true, message: "XPath is required" }]}
+        rules={[
+          { required: true, message: "XPath is required" },
+          {
+            validator: (_, value) => {
+              try {
+                document.createExpression(value);
+                return Promise.resolve();
+              } catch {
+                return Promise.reject("Invalid XPath");
+              }
+            },
+          },
+        ]}
       >
         <Input disabled={!isEditing} />
       </Form.Item>
@@ -98,21 +114,29 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
         name="isInline"
         style={{ marginBottom: 36, width: "49%" }}
       >
-        <Select defaultValue={false} disabled={!isEditing} options={elementTypeOptions} />
+        <Select
+          defaultValue={false}
+          disabled={!isEditing}
+          options={elementTypeOptions}
+        />
       </Form.Item>
       <Form.Item<string>
         label="Translate"
         name="translate"
         style={{ marginBottom: 36, width: "45%" }}
       >
-        <Select  disabled={!isEditing} options={translateOptions} />
+        <Select disabled={!isEditing} options={translateOptions} />
       </Form.Item>
       {!isEditing && (
         <Form.Item>
-        <Button style={{ width: "100%" }} type="primary" onClick={() => setIsEditing(true)}>
-          Edit rule
-        </Button>
-      </Form.Item>
+          <Button
+            style={{ width: "100%" }}
+            type="primary"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit rule
+          </Button>
+        </Form.Item>
       )}
       {isEditing && isCreate ? (
         <Form.Item>
