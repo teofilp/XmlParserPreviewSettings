@@ -110,7 +110,7 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
         <Input disabled={!isEditing} />
       </Form.Item>
       <Form.Item<string>
-        label="Element type"
+        label="Tag type"
         name="isInline"
         style={{ marginBottom: 36, width: "49%" }}
       >
