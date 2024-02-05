@@ -11,13 +11,12 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
-    "@reduxjs/toolkit": "^2.0.1",
     "antd": "^5.12.8",
     "lodash.debounce": "^4.0.8",
     "lodash.isnil": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-redux": "^9.0.4",
+    "styled-components": "^6.1.8",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

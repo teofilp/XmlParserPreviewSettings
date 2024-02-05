@@ -1,21 +1,19 @@
 import { useContext, useMemo } from "react";
-import { useSelector } from "react-redux";
 import { Button, Flex } from "antd";
-import { RootState, useAppDispatch } from "../store";
 import { AppContext } from "../context/AppContext";
 import classes from "./list.module.css";
 import { XmlNodeActionPopoverContent } from "./popover/XmlNodeActionPopoverContent";
 import { DeleteFilled } from "@ant-design/icons";
-import { deleteRuleOverride } from "../store/parserSettings/parserSettingsSlice";
+import { useXmlParserSettingsContext } from "../context/XmlParserSettingsContext";
 
 export const RulesOverridesList = () => {
-  const { elementRuleMaps, overrides, defaultRules } = useSelector(
-    (state: RootState) => state.parserSettings
-  );
+  const {
+    state: { elementRuleMaps, overrides, defaultRules },
+    deleteRuleOverride
+  } = useXmlParserSettingsContext();
   const {
     appState: { xmlDocument },
   } = useContext(AppContext);
-  const dispatch = useAppDispatch();
 
   const overrideRules = useMemo(() => {
     if (!xmlDocument) {
@@ -54,7 +52,7 @@ export const RulesOverridesList = () => {
           </Flex>
           <Flex className={classes["list-item-column"]}>
             <Button
-              onClick={() => dispatch(deleteRuleOverride(rule.id))}
+              onClick={() => deleteRuleOverride(rule.id)}
               icon={<DeleteFilled />}
               type="primary"
               danger

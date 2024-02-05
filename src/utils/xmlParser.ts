@@ -1,6 +1,6 @@
 import { RcFile } from "antd/es/upload";
 import { v4 as uuidv4 } from "uuid";
-import { getFileContentAsTextAsync } from "./file";
+import { getFileWithContentAsTextAsync } from "./file";
 import { XmlElement, XmlElementWithRelations } from "../models/xmlElement";
 import { XmlElementType } from "../models/xmlElementType";
 import { DomXmlElement } from "../models/domXmlElement";
@@ -10,12 +10,13 @@ import { XmlDocument } from "../models/xmlDocument";
 import { TranslateRule } from "../models/translateRule";
 import { WithinTextRule } from "../models/withinTextRule";
 
-export const getXmlAsObjectAsync = async (
+export const processXmlFile = async (
   file: RcFile
 ): Promise<{
   xmlDocument: XmlDocument;
   xmlDomDocument: Document;
   parserRules: XmlParserRule[];
+  loadedFile: File;
 }> => {
   const parserRules: XmlParserRule[] = [];
 
@@ -23,9 +24,9 @@ export const getXmlAsObjectAsync = async (
     parserRules.push(rule);
   };
 
-  const xml = await getFileContentAsTextAsync(file);
+  const { content, file: loadedFile } = await getFileWithContentAsTextAsync(file);
   const xmlDomDocument = new DOMParser().parseFromString(
-    xml,
+    content,
     file.type as DOMParserSupportedType
   );
 
@@ -35,12 +36,11 @@ export const getXmlAsObjectAsync = async (
       .filter((x) => !!x)
   );
 
-  console.log(xmlDocument);
-
   return {
     xmlDocument,
     parserRules,
     xmlDomDocument,
+    loadedFile
   };
 };
 

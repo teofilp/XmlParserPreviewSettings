@@ -13,6 +13,6 @@ export interface XmlParserRuleOverride {
     id: string;
     xpathSelector: string;
     translate?: TranslateRule;
-    WithinTextRule?: WithinTextRule;
+    withinTextRule?: WithinTextRule;
     isInline?: boolean;
 }

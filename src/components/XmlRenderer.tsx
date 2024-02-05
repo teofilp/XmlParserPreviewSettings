@@ -1,11 +1,11 @@
 import { NodeType } from "../models/nodeType";
 import { XmlElement } from "../models/xmlElement";
-import { CDataNode } from "./CDataNode";
-import { CommentNode } from "./CommentNode";
-import ElementNode from "./ElementNode";
-import { ProcessingInstructionNode } from "./ProcessingInstructionNode";
-import { TextNode } from "./TextNode";
-import { XmlNodeProps } from "./commonProps";
+import { CDataNode } from "./nodes/CDataNode";
+import { CommentNode } from "./nodes/CommentNode";
+import ElementNode from "./nodes/ElementNode";
+import { ProcessingInstructionNode } from "./nodes/ProcessingInstructionNode";
+import { TextNode } from "./nodes/TextNode";
+import { XmlNodeProps } from "./nodes/commonProps";
 
 const rendererMap: { [key: number]: React.FC<XmlNodeProps> } = {
   [NodeType.Element]: ElementNode,

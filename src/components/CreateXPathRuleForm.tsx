@@ -2,14 +2,9 @@ import { Button, Form, Input, Select } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import { XmlParserRuleOverride } from "../models/rules";
 import { TranslateRule } from "../models/translateRule";
-import { useAppDispatch } from "../store";
-import {
-  deleteRuleOverride,
-  setRuleOverride,
-} from "../store/parserSettings/parserSettingsSlice";
 import { useEffect, useState } from "react";
-import debounce from "lodash.debounce";
-import { setXPathSelector } from "../store/activeNodesSlice";
+import { useActiveNodesContext } from "../context/ActiveNodesContext";
+import { useXmlParserSettingsContext } from "../context/XmlParserSettingsContext";
 
 const getDefaultValues = (): XmlParserRuleOverride => ({
   xpathSelector: "",
@@ -45,8 +40,9 @@ interface CreateXPathRuleFormProps {
 
 export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
   const [form] = Form.useForm();
+  const { setXPathSelector } = useActiveNodesContext();
+  const { deleteRuleOverride, setRuleOverride } = useXmlParserSettingsContext();
   const xpathSelector = Form.useWatch("xpathSelector", form);
-  const dispatch = useAppDispatch();
   const isCreate = !item;
   const [isEditing, setIsEditing] = useState<boolean>(isCreate);
 
@@ -60,24 +56,21 @@ export const CreateXPathRuleForm = ({ item }: CreateXPathRuleFormProps) => {
           ...item,
           ...formData,
         };
-    dispatch(setRuleOverride(data));
-    dispatch(setXPathSelector(""));
+    setRuleOverride(data);
+    setXPathSelector("");
     isCreate && form.resetFields();
     !isCreate && setIsEditing(false);
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(
-      () => dispatch(setXPathSelector(xpathSelector)),
-      500
-    );
+    const timeoutId = setTimeout(() => setXPathSelector(xpathSelector), 500);
 
     return () => clearTimeout(timeoutId);
   }, [xpathSelector]);
 
   const handleRemove = () => {
-    dispatch(deleteRuleOverride(item!.id));
-    dispatch(setXPathSelector(""));
+    deleteRuleOverride(item!.id);
+    setXPathSelector("");
   };
 
   return (

@@ -1,6 +1,6 @@
 import isNil from "lodash.isnil";
 import { DomXmlElement } from "../models/domXmlElement";
-import { XmlParserRule, XmlParserRuleOverride } from "../models/rules";
+import { XmlParserRuleOverride } from "../models/rules";
 import { TranslateRule } from "../models/translateRule";
 import { XmlDocument } from "../models/xmlDocument";
 import {

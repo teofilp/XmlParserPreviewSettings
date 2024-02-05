@@ -1,14 +1,14 @@
 import { PropsWithChildren, useMemo, useContext } from "react";
-import { XmlElement } from "../models/xmlElement";
-import { XmlElementType } from "../models/xmlElementType";
-import { Indentation } from "./Indentation";
+import { XmlElement } from "../../models/xmlElement";
+import { XmlElementType } from "../../models/xmlElementType";
+import { Indentation } from "../Indentation";
 import { XmlNodeProps } from "./commonProps";
-import { XmlRenderer } from "./XmlRenderer";
-import { TranslateRule } from "../models/translateRule";
-import { XmlNodeActionPopoverContent } from "./popover/XmlNodeActionPopoverContent";
-import { ActionPopover } from "./popover/ActionPopover";
-import { AppContext } from "../context/AppContext";
-import { useNodeIsSelected } from "../hooks/useNodeIsSelected";
+import { XmlRenderer } from "../XmlRenderer";
+import { TranslateRule } from "../../models/translateRule";
+import { XmlNodeActionPopoverContent } from "../popover/XmlNodeActionPopoverContent";
+import { ActionPopover } from "../popover/ActionPopover";
+import { AppContext } from "../../context/AppContext";
+import { useNodeIsSelected } from "../../hooks/useNodeIsSelected";
 
 const buildStartTag = (
   element: XmlElement,

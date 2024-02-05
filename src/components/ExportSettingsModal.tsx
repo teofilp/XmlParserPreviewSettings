@@ -1,14 +1,10 @@
 import { Form, Input, Modal } from "antd";
 import xmlBuilder from "../utils/xmlBuilder";
-import { useSelector } from "react-redux";
-import {
-  getApplicableRules,
-  getRulesOverrides,
-} from "../store/parserSettings/parserSettingsSlice";
 import { downloadXml } from "../utils/xmlDownload";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { NodeType } from "../models/nodeType";
+import { useXmlParserSettingsContext } from "../context/XmlParserSettingsContext";
 
 interface ExportSettingsModalProps {
   isOpen: boolean;
@@ -28,8 +24,10 @@ export const ExportSettingsModal = ({
 }: ExportSettingsModalProps) => {
   const { 0: form } = Form.useForm();
   const { appState } = useContext(AppContext);
-  const applicableRules = useSelector(getApplicableRules);
-  const overrides = useSelector(getRulesOverrides);
+  const {
+    applicableRules,
+    state: { overrides },
+  } = useXmlParserSettingsContext();
 
   const handleFinish = (data: any) => {
     const rootElementName = appState.xmlDocument
@@ -41,7 +39,12 @@ export const ExportSettingsModal = ({
       overrides.find((y) => y.id == x.id)
     );
 
-    const xmlString = xmlBuilder.buildXml(data, rules, rootElementName, appState.useElementRules!);
+    const xmlString = xmlBuilder.buildXml(
+      data,
+      rules,
+      rootElementName,
+      appState.useElementRules!
+    );
     downloadXml(xmlString);
     setIsOpen(false);
   };

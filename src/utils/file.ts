@@ -1,6 +1,8 @@
 import { RcFile } from "antd/es/upload";
 
-export const getFileContentAsTextAsync = (file: RcFile): Promise<string> => {
+export const getFileWithContentAsTextAsync = (
+  file: RcFile
+): Promise<{ content: string; file: File }> => {
   return new Promise(async (resolve, reject) => {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
@@ -8,7 +10,10 @@ export const getFileContentAsTextAsync = (file: RcFile): Promise<string> => {
         reject();
       }
 
-      resolve(e!.target!.result as string);
+      resolve({
+        content: e!.target!.result as string,
+        file: new File([blob], file.name),
+      });
     };
 
     var buffer = await file.arrayBuffer();

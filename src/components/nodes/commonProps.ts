@@ -1,4 +1,4 @@
-import { XmlElement } from "../models/xmlElement";
+import { XmlElement } from "../../models/xmlElement";
 
 export interface XmlNodeProps {
     element: XmlElement;

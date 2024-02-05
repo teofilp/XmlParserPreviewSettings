@@ -1,28 +1,28 @@
 import { Flex } from "antd";
 import classes from "./list.module.css";
-import { useSelector } from "react-redux";
-import { getRulesOverrides } from "../store/parserSettings/parserSettingsSlice";
 import { CreateXPathRuleForm } from "./CreateXPathRuleForm";
 import { XmlParserRuleOverride } from "../models/rules";
-import { useAppDispatch } from "../store";
-import { setXPathSelector } from "../store/activeNodesSlice";
+import { useActiveNodesContext } from "../context/ActiveNodesContext";
+import { useXmlParserSettingsContext } from "../context/XmlParserSettingsContext";
 
 export const XPathRulesList = () => {
-  const overrideRules = useSelector(getRulesOverrides);
-  const dispatch = useAppDispatch();
+  const {
+    state: { overrides },
+  } = useXmlParserSettingsContext();
+  const { setXPathSelector } = useActiveNodesContext();
 
   return (
     <Flex vertical style={{ width: "100%", marginTop: 16, marginBottom: 16 }}>
       <Flex className={classes["list-item-container"]}>
         <CreateXPathRuleForm />
       </Flex>
-      {overrideRules.toReversed().map((rule: XmlParserRuleOverride) => (
+      {overrides.toReversed().map((rule: XmlParserRuleOverride) => (
         <Flex
           key={rule.id}
           onMouseOver={() => {
-            dispatch(setXPathSelector(rule.xpathSelector));
+            setXPathSelector(rule.xpathSelector);
           }}
-          onMouseOut={() => dispatch(setXPathSelector(""))}
+          onMouseOut={() => setXPathSelector("")}
           className={classes["list-item-container"]}
         >
           <CreateXPathRuleForm item={rule} />

@@ -7,11 +7,9 @@ import {
 } from "react";
 import { XmlDocument } from "../models/xmlDocument";
 import { XmlElement, XmlElementSettings } from "../models/xmlElement";
-import { useSelector } from "react-redux";
-import { getApplicableRules } from "../store/parserSettings/parserSettingsSlice";
 import xmlRuleApplier from "../utils/xmlRuleApplier";
-import { getXPathSelector, setNodeIds } from "../store/activeNodesSlice";
-import { useAppDispatch } from "../store";
+import { useActiveNodesContext } from "./ActiveNodesContext";
+import { useXmlParserSettingsContext } from "./XmlParserSettingsContext";
 
 interface AppState {
   xmlDocument: XmlDocument | null;
@@ -19,6 +17,7 @@ interface AppState {
   isInitialized: boolean;
   xmlElementSettings: XmlElementSettings[];
   useElementRules: boolean | null;
+  loadedFile?: File;
 }
 
 const getDefaultAppState = (): AppState => ({
@@ -32,23 +31,30 @@ const getDefaultAppState = (): AppState => ({
 export const AppContext = createContext({
   appState: getDefaultAppState(),
   initializeAppState: (
-    _: Omit<AppState, "isInitialized" | "useElementRules">
+    _: Omit<AppState, "isInitialized" | "useElementRules"> & {
+      loadedFile: File;
+    }
   ) => {},
   getElementSettings: (_: XmlElement): XmlElementSettings | undefined => {
     return;
   },
   resetAppState: () => {},
-  setModeType: (useElementRules: boolean) => {},
+  setModeType: (_: boolean) => {},
 });
 
 export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [appState, setAppState] = useState<AppState>(getDefaultAppState());
-  const rules = useSelector(getApplicableRules);
-  const xpathSelector = useSelector(getXPathSelector);
-  const dispatch = useAppDispatch();
+  const { applicableRules } = useXmlParserSettingsContext();
+
+  const {
+    state: { xpathSelector },
+    setNodeIds
+  } = useActiveNodesContext();
 
   const initializeAppState = (
-    payload: Omit<AppState, "isInitialized" | "useElementRules">
+    payload: Omit<AppState, "isInitialized" | "useElementRules"> & {
+      loadedFile: File;
+    }
   ) => {
     setAppState({
       ...getDefaultAppState(),
@@ -82,24 +88,24 @@ export const AppContextProvider = ({ children }: PropsWithChildren<any>) => {
     var { elementSettings } = xmlRuleApplier.applyRules(
       appState.xmlDocument!,
       appState.xmlDomDocument!,
-      rules
+      applicableRules
     );
 
     setAppState((old) => ({
       ...old,
       xmlElementSettings: elementSettings,
     }));
-  }, [rules]);
+  }, [applicableRules]);
 
   useEffect(() => {
     if (!appState.xmlDomDocument || !xpathSelector) return;
 
     const nodesIds = xmlRuleApplier
-        .evaluateXPath(appState.xmlDomDocument, xpathSelector)
-        .filter(x => !!x)
-        .map(x => x.id);
-        
-    dispatch(setNodeIds(nodesIds));
+      .evaluateXPath(appState.xmlDomDocument, xpathSelector)
+      .filter((x) => !!x)
+      .map((x) => x.id);
+
+    setNodeIds(nodesIds);
   }, [xpathSelector, appState.xmlDomDocument]);
 
   const value = {
