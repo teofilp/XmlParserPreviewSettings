@@ -26,7 +26,7 @@ const StartTag = ({
 
   if (!hasAttributes) {
     return (
-      <Popover content={<PopoverContent />} trigger="click">
+      <Popover content={<PopoverContent />}>
         <span
           className={
             isSelected
@@ -47,7 +47,7 @@ const StartTag = ({
     .join(" ");
 
   return (
-    <Popover content={<PopoverContent />} trigger="click">
+    <Popover content={<PopoverContent />}>
       <span
         className={
           isSelected

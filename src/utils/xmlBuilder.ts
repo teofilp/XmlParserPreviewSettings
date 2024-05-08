@@ -54,7 +54,6 @@ export class XmlBuilder {
       )
     );
     group.appendChild(this.buildProfileData(profileData));
-    console.log(this.document);
     return new XMLSerializer().serializeToString(this.document);
   }
 

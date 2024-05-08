@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import { Popover } from "antd";
 import classes from "./popoverContent.module.css";
 import { XmlElement } from "../../models/xmlElement";
 import { AppContext } from "../../context/AppContext";
@@ -7,6 +6,7 @@ import { XmlElementType } from "../../models/xmlElementType";
 import { TranslateRule } from "../../models/translateRule";
 import { useXmlParserSettingsContext } from "../../context/XmlParserSettingsContext";
 import { Flex } from "../Flex";
+import { Popover } from "./Popover";
 
 interface XmlNodeActionPopoverContentProps {
   element: XmlElement;
@@ -19,8 +19,6 @@ export const XmlNodeActionPopoverContent = ({
   const xmlRule = getXmlElementRule(element);
   const { getElementSettings } = useContext(AppContext);
   const elementSettings = getElementSettings(element);
-
-  console.log(xmlRule);
   
   const elementType = xmlRule.isInline
     ? XmlElementType.Inline
@@ -78,7 +76,7 @@ export const XmlNodeActionPopoverContent = ({
   };
 
   return (
-    <Flex style={{ gap: 8 }} dir="row">
+    <Flex style={{ gap: 8 }}>
       <Popover title={elementTypeActionMapper[elementType].tooltip}>
         <Flex
           onClick={elementTypeActionMapper[elementType].action}

@@ -23,7 +23,6 @@ export const FileLoader = () => {
           ...rest,
           xmlElementSettings: elementSettings,
         });
-        console.log(elementRuleMaps);
         setRulesMaps(elementRuleMaps);
         setDefaultRules(parserRules);
       })
