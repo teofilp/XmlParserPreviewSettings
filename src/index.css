@@ -39,6 +39,7 @@ html, body {
 }
 
 span.nodeTag {
+  position: relative;
   background-color: unset;
   color: rgb(187, 187, 187);
   padding: 2px;

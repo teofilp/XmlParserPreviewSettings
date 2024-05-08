@@ -73,7 +73,6 @@ export const XmlParserSettingsContextProvider = ({
 
   const getXmlElementRule = useCallback(
     (node: XmlElement): XmlParserRule => {
-      console.log(elementRuleMaps, defaultRules, overrides);
       const map = elementRuleMaps.find((x) => x.xmlElementId == node.id)!;
 
       const defaultRule = defaultRules.find((x) => x.id == map.ruleId)!;
@@ -90,8 +89,6 @@ export const XmlParserSettingsContextProvider = ({
     },
     [defaultRules, overrides, elementRuleMaps]
   );
-
-  console.log(defaultRules, overrides, elementRuleMaps);
 
   const applicableRules = useMemo((): XmlParserRuleOverride[] => {
     const defaultRulesWithOverrides: XmlParserRuleOverride[] = defaultRules.map(

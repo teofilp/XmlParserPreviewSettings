@@ -1,15 +1,14 @@
 import { useContext, useMemo } from "react";
-import { Button, Flex } from "antd";
 import { AppContext } from "../context/AppContext";
 import classes from "./list.module.css";
 import { XmlNodeActionPopoverContent } from "./popover/XmlNodeActionPopoverContent";
-import { DeleteFilled } from "@ant-design/icons";
 import { useXmlParserSettingsContext } from "../context/XmlParserSettingsContext";
+import { Flex } from "./Flex";
 
 export const RulesOverridesList = () => {
   const {
     state: { elementRuleMaps, overrides, defaultRules },
-    deleteRuleOverride
+    deleteRuleOverride,
   } = useXmlParserSettingsContext();
   const {
     appState: { xmlDocument },
@@ -51,13 +50,7 @@ export const RulesOverridesList = () => {
             <XmlNodeActionPopoverContent element={rule.element} />
           </Flex>
           <Flex className={classes["list-item-column"]}>
-            <Button
-              onClick={() => deleteRuleOverride(rule.id)}
-              icon={<DeleteFilled />}
-              type="primary"
-              danger
-              shape="round"
-            />
+            <button onClick={() => deleteRuleOverride(rule.id)}>delete rule</button>
           </Flex>
         </Flex>
       ))}

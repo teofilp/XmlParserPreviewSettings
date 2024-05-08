@@ -6,23 +6,27 @@ import { XmlNodeProps } from "./commonProps";
 import { XmlRenderer } from "../XmlRenderer";
 import { TranslateRule } from "../../models/translateRule";
 import { XmlNodeActionPopoverContent } from "../popover/XmlNodeActionPopoverContent";
-import { ActionPopover } from "../popover/ActionPopover";
 import { AppContext } from "../../context/AppContext";
 import { useNodeIsSelected } from "../../hooks/useNodeIsSelected";
+import { Popover } from "../popover/Popover";
 
-const buildStartTag = (
-  element: XmlElement,
-  isInline: boolean,
-  isSelected: boolean
-) => {
+const StartTag = ({
+  element,
+  isInline,
+  isSelected,
+}: {
+  element: XmlElement;
+  isInline: boolean;
+  isSelected: boolean;
+}) => {
   const hasAttributes = element.attributes.length > 0;
-  const popoverContent = () => (
+  const PopoverContent = () => (
     <XmlNodeActionPopoverContent element={element} />
   );
 
   if (!hasAttributes) {
-    return () => (
-      <ActionPopover trigger="click" content={popoverContent}>
+    return (
+      <Popover content={<PopoverContent />} trigger="click">
         <span
           className={
             isSelected
@@ -31,8 +35,10 @@ const buildStartTag = (
               ? "nodeTag inlineTag"
               : "nodeTag"
           }
-        >{`<${element.name}>`}</span>
-      </ActionPopover>
+        >
+          {`<${element.name}>`}
+        </span>
+      </Popover>
     );
   }
 
@@ -40,8 +46,8 @@ const buildStartTag = (
     .map((x) => `${x.key}="${x.value}"`)
     .join(" ");
 
-  return () => (
-    <ActionPopover trigger="click" content={popoverContent}>
+  return (
+    <Popover content={<PopoverContent />} trigger="click">
       <span
         className={
           isSelected
@@ -50,8 +56,10 @@ const buildStartTag = (
             ? "nodeTag inlineTag"
             : "nodeTag"
         }
-      >{`<${element.name}  ${attributes}>`}</span>
-    </ActionPopover>
+      >
+        {`<${element.name}  ${attributes}>`}
+      </span>
+    </Popover>
   );
 };
 
@@ -89,7 +97,6 @@ const ElementNode = ({ element }: PropsWithChildren<XmlNodeProps>) => {
     return <Indentation depth={depth}>{element.textValue!}</Indentation>;
   }
 
-  const StartTag = buildStartTag(element, isInline, isSelected);
   const EndTag = buildEndTag(element, isInline, isSelected);
 
   const children = useMemo(
@@ -100,7 +107,7 @@ const ElementNode = ({ element }: PropsWithChildren<XmlNodeProps>) => {
   return (
     <>
       <Indentation isInline={isInline} depth={depth}>
-        <StartTag />
+        <StartTag {...{ element, isInline, isSelected }} />
         {children.length > 0 && (
           <XmlRenderer
             translatable={settings?.translateCurrentValue == TranslateRule.Yes}

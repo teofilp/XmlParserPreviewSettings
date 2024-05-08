@@ -1,9 +1,9 @@
-import { Flex } from "antd";
 import classes from "./list.module.css";
 import { CreateXPathRuleForm } from "./CreateXPathRuleForm";
 import { XmlParserRuleOverride } from "../models/rules";
 import { useActiveNodesContext } from "../context/ActiveNodesContext";
 import { useXmlParserSettingsContext } from "../context/XmlParserSettingsContext";
+import { Flex } from "./Flex";
 
 export const XPathRulesList = () => {
   const {

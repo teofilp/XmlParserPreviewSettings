@@ -1,11 +1,12 @@
 import { useContext } from "react";
-import { Flex, Popover } from "antd";
+import { Popover } from "antd";
 import classes from "./popoverContent.module.css";
 import { XmlElement } from "../../models/xmlElement";
 import { AppContext } from "../../context/AppContext";
 import { XmlElementType } from "../../models/xmlElementType";
 import { TranslateRule } from "../../models/translateRule";
 import { useXmlParserSettingsContext } from "../../context/XmlParserSettingsContext";
+import { Flex } from "../Flex";
 
 interface XmlNodeActionPopoverContentProps {
   element: XmlElement;

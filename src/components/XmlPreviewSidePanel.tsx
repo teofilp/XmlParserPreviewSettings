@@ -1,26 +1,28 @@
-import { Button, Flex } from "antd";
 import { FileLoader } from "./FileLoader";
 import isNil from "lodash.isnil";
 import { RulesOverridesList } from "./RulesOverridesList";
 import { XPathRulesList } from "./XPathRulesList";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import { DownloadOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { useXmlParserSettingsContext } from "../context/XmlParserSettingsContext";
+import { Flex } from "./Flex";
 
-const FlexContainer = styled(Flex)`
+const FlexContainer = styled.div`
+  display: flex;
   padding: 8px;
   overflow-y: auto;
   flex: 1;
 `;
 
-const ContainerInner = styled(Flex)`
-    width: 100%;
+const ContainerInner = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
-const ExportButton = styled(Button)`
-    margin-top: 32px;
+const ExportButton = styled.button`
+  margin-top: 32px;
 `;
 
 export const XmlPreviewSidePanel = () => {
@@ -35,7 +37,7 @@ export const XmlPreviewSidePanel = () => {
     <FlexContainer>
       {!loadedFile && <FileLoader />}
       {loadedFile && (
-        <ContainerInner vertical>
+        <ContainerInner>
           <div>
             {loadedFile!.name}
             <button
@@ -48,15 +50,11 @@ export const XmlPreviewSidePanel = () => {
             </button>
           </div>
           {isNil(useElementRules) ? (
-            <Flex vertical align="center">
+            <Flex $vertical align="center">
               Select rules configuration mode
               <Flex gap={12}>
-                <Button type="primary" onClick={() => setModeType(true)}>
-                  Element rules
-                </Button>
-                <Button type="primary" onClick={() => setModeType(false)}>
-                  XPath rules
-                </Button>
+                <button onClick={() => setModeType(true)}>Element rules</button>
+                <button onClick={() => setModeType(false)}>XPath rules</button>
               </Flex>
             </Flex>
           ) : useElementRules ? (
@@ -64,12 +62,7 @@ export const XmlPreviewSidePanel = () => {
           ) : (
             <XPathRulesList />
           )}
-          <ExportButton
-            icon={<DownloadOutlined />}
-            type="primary"
-          >
-            Export settings
-          </ExportButton>
+          <ExportButton>Export settings</ExportButton>
         </ContainerInner>
       )}
     </FlexContainer>

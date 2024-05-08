@@ -1,8 +1,8 @@
-import { Flex } from "antd";
 import { XmlRenderer } from "./XmlRenderer";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import styled from "styled-components";
+import { Flex } from "./Flex";
 
 const Container = styled(Flex)`
   flex: 2;
